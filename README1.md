@@ -1,6 +1,3 @@
-# quiz_to_testimonial
-I built an end-to-end automation that turns Google Form quiz submissions into branded image cards with zero manual work after setup. There is quiz in google form which contains student's name, image, opinion or feedback on topic and takes quiz. it helps in generating testimonial and save it to drive.
-
 # Google form to google sheet via app script
 A simple quiz web app built with Google Apps Script. Students enter their name, an image URL, and their opinion on AI tools, then answer three beginner-level multiple-choice questions about Claude. On submit, the app scores the quiz and writes a row to a Google Sheet named **Testimonial**.
 
