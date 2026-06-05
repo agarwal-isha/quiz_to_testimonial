@@ -1,0 +1,57 @@
+{
+  "name": "Sheet to Image Card",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": { "item": [{ "mode": "everyMinute" }] },
+        "documentId": { "__rl": true, "mode": "list", "value": "YOUR_SHEET_ID" },
+        "sheetName": { "__rl": true, "mode": "list", "value": "Sheet1" },
+        "event": "rowAdded"
+      },
+      "name": "Google Sheets Trigger",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "name": "name", "value": "={{ $json[\"Name\"] }}", "type": "string" },
+            { "name": "imageUrl", "value": "={{ $json[\"Image URL\"] }}", "type": "string" },
+            { "name": "aiOpinion", "value": "={{ $json[\"AI Opinion\"] }}", "type": "string" }
+          ]
+        }
+      },
+      "name": "Map Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hcti.io/v1/image",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "html",
+              "value": "=<div style=\"width:800px;font-family:Arial,sans-serif;padding:40px;background:#ffffff;box-sizing:border-box;\"><h1 style=\"margin:0 0 24px 0;font-size:36px;color:#1a1a1a;\">{{ $json.name }}</h1><div style=\"display:flex;justify-content:flex-end;\"><img src=\"{{ $json.imageUrl }}\" style=\"width:280px;height:auto;border-radius:8px;\" /></div><div style=\"margin-top:24px;font-size:18px;line-height:1.6;color:#333;\">{{ $json.aiOpinion }}</div></div>"
+            }
+          ]
+        }
+      },
+      "name": "HTML to Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300]
+    }
+  ],
+  "connections": {
+    "Google Sheets Trigger": { "main": [[{ "node": "Map Fields", "type": "main", "index": 0 }]] },
+    "Map Fields": { "main": [[{ "node": "HTML to Image", "type": "main", "index": 0 }]] }
+  }
+}
