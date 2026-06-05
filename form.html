@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<style>
+  body { font-family: Arial, sans-serif; max-width: 640px; margin: 24px auto; padding: 0 16px; color: #202124; }
+  h1 { font-size: 22px; }
+  .card { border: 1px solid #dadce0; border-radius: 8px; padding: 18px; margin-bottom: 16px; }
+  label { display: block; font-weight: 600; margin-bottom: 8px; }
+  input[type=text], input[type=url], textarea {
+    width: 100%; padding: 8px; border: 1px solid #dadce0; border-radius: 4px; box-sizing: border-box; font-size: 14px;
+  }
+  textarea { min-height: 80px; resize: vertical; }
+  .opt { font-weight: normal; margin: 6px 0; }
+  button { background: #1a73e8; color: #fff; border: none; padding: 10px 22px; border-radius: 4px; font-size: 15px; cursor: pointer; }
+  button:disabled { background: #9aa0a6; cursor: default; }
+  .marks { color: #5f6368; font-size: 13px; font-weight: normal; }
+  #result { display: none; border: 1px solid #34a853; background: #e6f4ea; padding: 18px; border-radius: 8px; }
+  .req { color: #d93025; }
+</style>
+</head>
+<body>
+<h1>Claude Basics — Quiz</h1>
+
+<div id="formArea">
+  <div class="card">
+    <label>Student Name <span class="req">*</span></label>
+    <input type="text" id="name">
+  </div>
+
+  <div class="card">
+    <label>Image URL <span class="req">*</span></label>
+    <input type="url" id="imageUrl" placeholder="https://...">
+  </div>
+
+  <div class="card">
+    <label>What do you think about AI tools and their future? <span class="req">*</span></label>
+    <textarea id="opinion"></textarea>
+  </div>
+
+  <div class="card">
+    <label>Q1. Who created Claude? <span class="marks">(2 marks)</span></label>
+    <div class="opt"><input type="radio" name="q1" value="a"> OpenAI</div>
+    <div class="opt"><input type="radio" name="q1" value="b"> Anthropic</div>
+    <div class="opt"><input type="radio" name="q1" value="c"> Google</div>
+    <div class="opt"><input type="radio" name="q1" value="d"> Meta</div>
+  </div>
+
+  <div class="card">
+    <label>Q2. What type of AI is Claude? <span class="marks">(2 marks)</span></label>
+    <div class="opt"><input type="radio" name="q2" value="a"> An image generator</div>
+    <div class="opt"><input type="radio" name="q2" value="b"> A large language model (AI assistant)</div>
+    <div class="opt"><input type="radio" name="q2" value="c"> A web browser</div>
+    <div class="opt"><input type="radio" name="q2" value="d"> A spreadsheet program</div>
+  </div>
+
+  <div class="card">
+    <label>Q3. Which is a common way to interact with Claude? <span class="marks">(2 marks)</span></label>
+    <div class="opt"><input type="radio" name="q3" value="a"> By mailing a letter</div>
+    <div class="opt"><input type="radio" name="q3" value="b"> Through a fax machine</div>
+    <div class="opt"><input type="radio" name="q3" value="c"> Through a chat interface or app</div>
+    <div class="opt"><input type="radio" name="q3" value="d"> By phone call only</div>
+  </div>
+
+  <button id="submitBtn" onclick="submit()">Submit</button>
+</div>
+
+<div id="result"></div>
+
+<script>
+function getRadio(name) {
+  const el = document.querySelector('input[name="' + name + '"]:checked');
+  return el ? el.value : '';
+}
+
+function submit() {
+  const name = document.getElementById('name').value.trim();
+  const imageUrl = document.getElementById('imageUrl').value.trim();
+  const opinion = document.getElementById('opinion').value.trim();
+  const q1 = getRadio('q1'), q2 = getRadio('q2'), q3 = getRadio('q3');
+
+  if (!name || !imageUrl || !opinion || !q1 || !q2 || !q3) {
+    alert('Please fill in all fields and answer all questions.');
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  google.script.run
+    .withSuccessHandler(onDone)
+    .withFailureHandler(function(e) {
+      alert('Error: ' + e.message);
+      btn.disabled = false;
+      btn.textContent = 'Submit';
+    })
+    .submitForm({ name, imageUrl, opinion, q1, q2, q3 });
+}
+
+function onDone(res) {
+  document.getElementById('formArea').style.display = 'none';
+  const r = document.getElementById('result');
+  r.style.display = 'block';
+  r.innerHTML = '<h2>Thanks, your response was recorded!</h2><p>Your score: <b>' +
+    res.score + ' / ' + res.total + '</b></p>';
+}
+</script>
+</html>
